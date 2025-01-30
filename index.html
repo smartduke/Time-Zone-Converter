@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Time Converter</title>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --primary-hover: #4f46e5;
+            --danger-color: #ef4444;
+            --danger-hover: #dc2626;
+            --background: #f8fafc;
+            --card-background: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --radius-md: 0.75rem;
+            --radius-sm: 0.5rem;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.5;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            color: var(--text-primary);
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .timezone-card {
+            background: var(--card-background);
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            position: relative;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .timezone-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px -2px rgba(0,0,0,0.15);
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            transition: background-color 0.2s ease;
+        }
+
+        .remove-btn:hover {
+            background-color: var(--danger-hover);
+        }
+
+        .timezone-search-container {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .timezone-search {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            padding-right: 2.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .timezone-search:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            pointer-events: none;
+        }
+
+        .timezone-select {
+            width: 100%;
+            margin-bottom: 1rem;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            scrollbar-width: thin;
+            scrollbar-color: var(--text-secondary) transparent;
+        }
+
+        .timezone-select::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .timezone-select::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .timezone-select::-webkit-scrollbar-thumb {
+            background-color: var(--text-secondary);
+            border-radius: 3px;
+        }
+
+        .timezone-select option {
+            padding: 0.75rem 1rem;
+            display: none;
+        }
+
+        .timezone-select option.visible {
+            display: block;
+        }
+
+        .timezone-select option:hover {
+            background-color: var(--background);
+        }
+
+        .current-time {
+            margin: 1rem 0;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .live-time {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        input[type="time"] {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            color: var(--text-primary);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        input[type="time"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <h1>Global Time Converter</h1>
+        <div class="controls">
+            <button class="btn btn-primary" onclick="addTimezoneCard()">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 6v12m-6-6h12" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Add Time Zone
+            </button>
+            <button class="btn btn-primary" onclick="resetToCurrent()">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 4v7h7M20 20v-7h-7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Reset to Current
+            </button>
+        </div>
+        <div class="container" id="cardsContainer"></div>
+    </div>
+
+    <script>
+        const DateTime = luxon.DateTime;
+        let referenceDateTime = DateTime.utc();
+        let cardCount = 0;
+
+        window.onload = () => {
+            addTimezoneCard();
+            addTimezoneCard();
+            setInterval(updateCurrentTimes, 1000);
+        }
+
+        function addTimezoneCard() {
+            const container = document.getElementById('cardsContainer');
+            const card = document.createElement('div');
+            card.className = 'timezone-card';
+            card.id = `card-${cardCount++}`;
+
+            const timezones = Intl.supportedValuesOf('timeZone').sort();
+            
+            card.innerHTML = `
+                <button class="remove-btn" onclick="removeCard('${card.id}')">×</button>
+                <div class="timezone-search-container">
+                    <input type="text" class="timezone-search" placeholder="Search country or city...">
+                    <svg class="search-icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 19l-4.35-4.35M17 9A8 8 0 111 9a8 8 0 0116 0z" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <select class="timezone-select" size="5">
+                    ${timezones.map(tz => `
+                        <option value="${tz}" data-search="${formatSearchString(tz)}">
+                            ${formatTimezoneName(tz)}
+                        </option>
+                    `).join('')}
+                </select>
+                <div class="current-time">
+                    Current Time: <span class="live-time"></span>
+                </div>
+                <input type="time" class="manual-time" step="60">
+            `;
+
+            const searchInput = card.querySelector('.timezone-search');
+            const select = card.querySelector('.timezone-select');
+            
+            searchInput.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase().trim();
+                const options = select.options;
+                
+                for (let option of options) {
+                    const searchText = option.dataset.search;
+                    option.classList.toggle('visible', searchText.includes(searchTerm));
+                }
+            });
+
+            const timeInput = card.querySelector('.manual-time');
+            const selectElement = card.querySelector('select');
+            timeInput.value = referenceDateTime.setZone(selectElement.value).toFormat('HH:mm');
+
+            selectElement.addEventListener('change', handleZoneChange);
+            timeInput.addEventListener('input', handleTimeChange);
+
+            container.appendChild(card);
+            updateCurrentTimes();
+
+            // Trigger initial search to show all options
+            searchInput.dispatchEvent(new Event('input'));
+        }
+
+        function removeCard(cardId) {
+            const card = document.getElementById(cardId);
+            card.style.transform = 'scale(0.95)';
+            card.style.opacity = '0';
+            setTimeout(() => {
+                card.remove();
+                updateAllTimeInputs();
+            }, 200);
+        }
+
+        function handleZoneChange(event) {
+            const card = event.target.closest('.timezone-card');
+            const timeInput = card.querySelector('.manual-time');
+            const newZone = event.target.value;
+            timeInput.value = referenceDateTime.setZone(newZone).toFormat('HH:mm');
+            updateAllTimeInputs();
+        }
+
+        function handleTimeChange(event) {
+            const card = event.target.closest('.timezone-card');
+            const zone = card.querySelector('select').value;
+            const newTime = DateTime.fromFormat(event.target.value, 'HH:mm', { zone });
+            
+            if (newTime.isValid) {
+                referenceDateTime = newTime.toUTC();
+                updateAllTimeInputs();
+            }
+        }
+
+        function updateAllTimeInputs() {
+            document.querySelectorAll('.timezone-card').forEach(card => {
+                const zone = card.querySelector('select').value;
+                const timeInput = card.querySelector('.manual-time');
+                timeInput.value = referenceDateTime.setZone(zone).toFormat('HH:mm');
+            });
+        }
+
+        function updateCurrentTimes() {
+            document.querySelectorAll('.timezone-card').forEach(card => {
+                const zone = card.querySelector('select').value;
+                const liveTimeSpan = card.querySelector('.live-time');
+                liveTimeSpan.textContent = DateTime.now().setZone(zone).toFormat('HH:mm:ss');
+            });
+        }
+
+        function resetToCurrent() {
+            referenceDateTime = DateTime.utc();
+            updateAllTimeInputs();
+        }
+
+        function formatSearchString(tz) {
+            return tz.toLowerCase().replace(/_/g, ' ');
+        }
+
+        function formatTimezoneName(tz) {
+            return tz.split('/').map(part => 
+                part.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+            ).join(' / ');
+        }
+    </script>
+</body>
+</html>
