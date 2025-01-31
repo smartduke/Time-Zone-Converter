@@ -1,6 +1,5 @@
 # 🌍 Time Zone Converter
 
-[![GitHub Pages Deployment](https://img.shields.io/badge/Deployed%20on-GitHub%20Pages-blue?logo=github)](https://yourusername.github.io/time-zone-converter/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A responsive web application for comparing time across multiple time zones with real-time synchronization and daylight saving time support.
