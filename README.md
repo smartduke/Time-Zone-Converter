@@ -30,7 +30,7 @@ A responsive web application for comparing time across multiple time zones with 
 ### Local Development
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/time-zone-converter.git
+   git clone https://github.com/smartduke/Time-Zone-Converter.git
    ```
 2. Open index.html in a modern web browser
 
@@ -86,6 +86,7 @@ SOFTWARE.
 
 ## ✉️ Contact
 For inquiries or collaboration opportunities:  
+Website: www.smartduke.com
 📧 Email: [dinakar@smartduke.com](mailto:dinakar@smartduke.com)  
 💼 LinkedIn: [@smartduke-technologies](https://www.linkedin.com/company/smartduke-technologies/)
 - Instagram: [@smartduke_technologies](https://www.instagram.com/smartduke_technologies/)
